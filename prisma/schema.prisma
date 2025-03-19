@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Models from DATABASE.md documentation
+model User {
+  id          String      @id @default(cuid())
+  did         String      @unique // AT Protocol DID
+  handle      String      @unique
+  displayName String?
+  description String?
+  avatar      String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Profile Stats
+  followersCount Int      @default(0)
+  followsCount   Int      @default(0)
+  postsCount     Int      @default(0)
+
+  // Relationships
+  posts         Post[]
+  followers     Follow[]    @relation("following")
+  following     Follow[]    @relation("followers")
+  likes         Like[]
+  reposts       Repost[]
+  replies       Reply[]
+  preferences   UserPreferences?
+
+  // Indexes
+  @@index([handle])
+  @@index([did])
+}
+
+model UserPreferences {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id])
+
+  // Notification Settings
+  emailNotifications    Boolean @default(true)
+  pushNotifications     Boolean @default(true)
+  workoutReminders      Boolean @default(false)
+  mealReminders         Boolean @default(false)
+
+  // Privacy Settings
+  profileVisibility     String  @default("public") // public, followers, private
+  showProgress         Boolean @default(true)
+  showWorkouts         Boolean @default(true)
+  showRecipes         Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  uri         String    @unique // AT Protocol URI
+  cid         String    @unique // AT Protocol CID
+  text        String
+  category    String    // workout, recipe, supplement, progress, other
+  tags        String[]
+  metadata    Json?     // Flexible metadata storage (JSONB)
+  
+  // Relations
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  likes       Like[]
+  reposts     Repost[]
+  replies     Reply[]
+
+  // Metrics
+  likeCount   Int       @default(0)
+  repostCount Int       @default(0)
+  replyCount  Int       @default(0)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Indexes
+  @@index([authorId])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model Like {
+  id        String    @id @default(cuid())
+  postId    String
+  userId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
+  @@index([userId])
+}
+
+model Repost {
+  id        String    @id @default(cuid())
+  postId    String
+  userId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
+  @@index([userId])
+}
+
+model Reply {
+  id        String    @id @default(cuid())
+  text      String
+  postId    String
+  userId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@index([postId])
+  @@index([userId])
+}
+
+model Follow {
+  id          String    @id @default(cuid())
+  followerId  String
+  followingId String
+  follower    User      @relation("following", fields: [followerId], references: [id])
+  following   User      @relation("followers", fields: [followingId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+} 
