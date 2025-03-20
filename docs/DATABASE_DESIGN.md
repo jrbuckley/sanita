@@ -1,7 +1,7 @@
-# Database Architecture Documentation
+# Database Design Documentation
 
 ## Overview
-Sanita uses PostgreSQL with Prisma ORM for data persistence. The schema is designed to support health and fitness-focused social features while maintaining compatibility with the AT Protocol.
+The database design for Sanita focuses on supporting health and fitness-focused social features while maintaining compatibility with the AT Protocol.
 
 ## Schema Design
 
@@ -66,7 +66,7 @@ model Post {
   text        String
   category    String    // workout, recipe, supplement, progress, other
   tags        String[]
-  metadata    Json?     // Flexible metadata storage (JSONB)
+  metadata    Json?     // Flexible metadata storage
   
   // Relations
   authorId    String
@@ -139,6 +139,28 @@ model Follow {
   @@index([followingId])
 }
 ```
+
+## Design Considerations
+
+### Indexing Strategy
+- Primary indexes on unique identifiers (did, handle, uri, cid)
+- Secondary indexes for efficient querying (category, createdAt)
+- Relationship indexes for social graph traversal
+
+### Performance Considerations
+- Denormalized counters for quick stats access
+- Efficient social graph querying through indexes
+- Flexible metadata storage for extensibility
+
+### Security Design
+- Row-level access control
+- Privacy settings at user level
+- Audit trail capabilities
+
+### Data Integrity
+- Referential integrity through foreign keys
+- Unique constraints on social interactions
+- Timestamp tracking for all records
 
 ## Indexing Strategy
 

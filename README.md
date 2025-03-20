@@ -25,44 +25,8 @@ A decentralized health and fitness social media platform built on the AT Protoco
 ### Backend
 - Node.js
 - AT Protocol integration
-- PostgreSQL for data storage
-- Prisma as ORM
-- Connection pooling for database optimization
-
-### Infrastructure
-- Environment-based configuration
-- Type-safe database operations
-- Automated database initialization
-- Comprehensive error handling
-
-## Database Setup
-
-1. Install PostgreSQL:
-   ```bash
-   brew install postgresql@14
-   brew services start postgresql@14
-   ```
-
-2. Set up environment variables:
-   Create a `.env` file with the following:
-   ```bash
-   DATABASE_URL="postgresql://sanita_user:sanita_secure_pwd_123@localhost:5432/sanita"
-   DB_USER=sanita_user
-   DB_PASSWORD=sanita_secure_pwd_123
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=sanita
-   ```
-
-3. Initialize the database:
-   ```bash
-   ./scripts/init-db.sh
-   ```
-
-4. Run Prisma migrations:
-   ```bash
-   npx prisma migrate dev
-   ```
+- PostgreSQL
+- Prisma ORM
 
 ## Getting Started
 
